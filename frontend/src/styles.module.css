@@ -1,0 +1,475 @@
+/* Global Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #fdfbf7;
+  color: #292524;
+}
+
+/* Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* Navbar */
+.navbar {
+  background: #fdfbf7;
+  border-bottom: 1px solid #e7e5e4;
+  padding: 1.5rem 0;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 100;
+}
+
+.navContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  font-style: italic;
+  color: #292524;
+  text-decoration: none;
+}
+
+.navLinks {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.navLink {
+  color: #57534e;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.navLink:hover {
+  color: #ea580c;
+}
+
+/* Buttons */
+.button {
+  padding: 0.75rem 1.5rem;
+  background: #292524;
+  color: white;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: background 0.3s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.button:hover {
+  background: #ea580c;
+}
+
+.buttonSecondary {
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  color: #292524;
+  border: 1px solid #292524;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.3s;
+}
+
+.buttonSecondary:hover {
+  background: #292524;
+  color: white;
+}
+
+.buttonDanger {
+  padding: 0.5rem 1rem;
+  background: #dc2626;
+  color: white;
+  border: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.buttonDanger:hover {
+  background: #991b1b;
+}
+
+.buttonSmall {
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+}
+
+/* Form Elements */
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #57534e;
+}
+
+.input,
+.textarea,
+.select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d6d3d1;
+  background: white;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.3s;
+}
+
+.input:focus,
+.textarea:focus,
+.select:focus {
+  outline: none;
+  border-color: #292524;
+}
+
+.textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* Cards */
+.card {
+  background: white;
+  border: 1px solid #e7e5e4;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.cardHeader {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e7e5e4;
+}
+
+.cardTitle {
+  font-size: 3rem;
+  font-style: italic;
+  color: #292524;
+  margin-bottom: 0.5rem;
+}
+
+.cardSubtitle {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #ea580c;
+}
+
+/* Page Layout */
+.page {
+  min-height: 100vh;
+  padding-top: 6rem;
+  padding-bottom: 4rem;
+}
+
+.pageHeader {
+  margin-bottom: 3rem;
+}
+
+.pageTitle {
+  font-size: 3rem;
+  font-style: italic;
+  margin-bottom: 0.5rem;
+}
+
+.pageSubtitle {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #ea580c;
+}
+
+/* Status Badges */
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badgePending {
+  background: #fef3c7;
+  color: #ea580c;
+  border: 1px solid #fde68a;
+}
+
+.badgeApproved {
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.badgeRejected {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+/* Leave List */
+.leaveItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e7e5e4;
+  transition: background 0.3s;
+}
+
+.leaveItem:hover {
+  background: white;
+}
+
+.leaveInfo {
+  flex: 1;
+}
+
+.leaveType {
+  font-size: 1.25rem;
+  font-style: italic;
+  color: #292524;
+  margin-bottom: 0.5rem;
+}
+
+.leaveDates {
+  font-size: 0.875rem;
+  color: #57534e;
+  margin-bottom: 0.25rem;
+}
+
+.leaveDetails {
+  font-size: 0.75rem;
+  color: #a8a29e;
+}
+
+.leaveActions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* Stats */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.statCard {
+  text-align: center;
+  padding: 2rem;
+  background: white;
+  border: 1px solid #e7e5e4;
+}
+
+.statValue {
+  font-size: 3rem;
+  font-style: italic;
+  color: #292524;
+  margin-bottom: 0.5rem;
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #a8a29e;
+}
+
+/* Table */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  text-align: left;
+  padding: 1rem;
+  border-bottom: 2px solid #e7e5e4;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #57534e;
+  font-weight: 600;
+}
+
+.table td {
+  padding: 1rem;
+  border-bottom: 1px solid #e7e5e4;
+}
+
+/* Loading */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  font-size: 1.125rem;
+  color: #a8a29e;
+}
+
+/* Empty State */
+.emptyState {
+  text-align: center;
+  padding: 4rem 2rem;
+  border-top: 2px solid #e7e5e4;
+}
+
+.emptyTitle {
+  font-size: 2rem;
+  font-style: italic;
+  color: #a8a29e;
+  margin-bottom: 1rem;
+}
+
+/* Home Page */
+.hero {
+  text-align: center;
+  padding: 6rem 2rem;
+}
+
+.heroTitle {
+  font-size: 4rem;
+  font-style: italic;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+}
+
+.heroSubtitle {
+  font-size: 1.125rem;
+  color: #57534e;
+  margin-bottom: 3rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.heroActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+/* Auth Pages */
+.authContainer {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.authBox {
+  width: 100%;
+  max-width: 400px;
+  background: white;
+  border: 1px solid #e7e5e4;
+  padding: 3rem;
+}
+
+.authTitle {
+  font-size: 2.5rem;
+  font-style: italic;
+  margin-bottom: 0.5rem;
+}
+
+.authSubtitle {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #ea580c;
+  margin-bottom: 2rem;
+}
+
+.authLink {
+  color: #ea580c;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.authLink:hover {
+  text-decoration: underline;
+}
+
+/* Utility Classes */
+.flex {
+  display: flex;
+}
+
+.flexBetween {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.gap1 {
+  gap: 1rem;
+}
+
+.gap2 {
+  gap: 2rem;
+}
+
+.mb1 {
+  margin-bottom: 1rem;
+}
+
+.mb2 {
+  margin-bottom: 2rem;
+}
+
+.mb3 {
+  margin-bottom: 3rem;
+}
+
+.mt2 {
+  margin-top: 2rem;
+}
+
+.textCenter {
+  text-align: center;
+}
+
+.textRight {
+  text-align: right;
+}
