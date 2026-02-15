@@ -1,140 +1,208 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+// apply-leave-page.jsx
+// Form for employees to submit a new leave application
 
-function ApplyLeavePage({ user, setUser }) {
-  const [leaveType, setLeaveType] = useState("Casual");
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
-  const [reason, setReason] = useState("");
-  const [loading, setLoading] = useState(false);
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import styles from './styles.module.css';
+
+const API_URL = 'http://localhost:5000/api';
+const LEAVE_TYPES = ['Casual', 'Sick', 'Paid', 'Other'];
+
+function Navbar({ user, setUser, isAdmin }) {
   const navigate = useNavigate();
-
-  async function handleLogout() {
+  
+  const handleLogout = async () => {
     try {
-      await fetch("http://localhost:8080/api/auth/logout", {
-        method: "POST",
-        credentials: "include",
+      await fetch(`${API_URL}/auth/logout`, {
+        method: 'POST',
+        credentials: 'include'
       });
       setUser(null);
-      navigate("/");
+      alert('Logged out successfully');
+      navigate('/');
     } catch (error) {
-      console.error(error);
+      alert('Logout failed');
     }
-  }
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const response = await fetch("http://localhost:8080/api/leaves", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ leaveType, fromDate, toDate, reason }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        alert("Leave application submitted successfully");
-        navigate("/my-leaves");
-      } else {
-        alert(data.error || "Failed to submit leave application");
-      }
-    } catch (error) {
-      alert("Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  }
-
+  };
+  
   return (
-    <div>
-      <nav className="navbar">
-        <div className="navContent">
-          <Link to="/dashboard" className="logo">OFF_SITE</Link>
-          <div className="navLinks">
-            <Link to="/dashboard" className="navLink">Dashboard</Link>
-            <Link to="/apply-leave" className="navLink">Apply Leave</Link>
-            <Link to="/my-leaves" className="navLink">My Leaves</Link>
-            {user.role === "admin" && <Link to="/admin" className="navLink">Admin</Link>}
-            <button onClick={handleLogout} className="button buttonSmall">Logout</button>
-          </div>
+    <nav className={styles.navbar}>
+      <div className={styles.navbarContainer}>
+        <Link to="/" className={styles.brand}>
+          <div className={styles.brandIcon}>O_</div>
+          <span className={styles.brandText}>OFF SITE</span>
+        </Link>
+        
+        <div className={styles.navLinks}>
+          <Link to="/" className={styles.navLink}>Home</Link>
+          <Link to="/dashboard" className={styles.navLink}>Dashboard</Link>
+          <Link to="/my-leaves" className={styles.navLink}>My Leaves</Link>
+          {isAdmin && (
+            <Link to="/admin" className={`${styles.navLink} ${styles.navLinkAdmin}`}>
+              Admin Panel
+            </Link>
+          )}
         </div>
-      </nav>
-
-      <div className="page">
-        <div className="container" style={{ maxWidth: "600px" }}>
-          <div className="pageHeader">
-            <p className="pageSubtitle">/// NEW REQUEST</p>
-            <h1 className="pageTitle">Apply for Leave.</h1>
-          </div>
-
-          <div className="card">
-            <form onSubmit={handleSubmit}>
-              <div className="formGroup">
-                <label className="label">Leave Type</label>
-                <select
-                  className="select"
-                  value={leaveType}
-                  onChange={(e) => setLeaveType(e.target.value)}
-                  required
-                >
-                  <option value="Casual">Casual</option>
-                  <option value="Sick">Sick</option>
-                  <option value="Paid">Paid</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-
-              <div className="formGroup">
-                <label className="label">From Date</label>
-                <input
-                  type="date"
-                  className="input"
-                  value={fromDate}
-                  onChange={(e) => setFromDate(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="formGroup">
-                <label className="label">To Date</label>
-                <input
-                  type="date"
-                  className="input"
-                  value={toDate}
-                  onChange={(e) => setToDate(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="formGroup">
-                <label className="label">Reason</label>
-                <textarea
-                  className="textarea"
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value)}
-                  required
-                  placeholder="Please provide a reason for your leave..."
-                ></textarea>
-              </div>
-
-              <div className="flex gap1">
-                <button type="submit" className="button" disabled={loading} style={{ flex: 1 }}>
-                  {loading ? "Submitting..." : "Submit Application"}
-                </button>
-                <Link to="/dashboard" className="buttonSecondary" style={{ flex: 1, textAlign: "center" }}>
-                  Cancel
-                </Link>
-              </div>
-            </form>
-          </div>
+        
+        <div className={styles.navActions}>
+          <span className={styles.userName}>{user?.name}</span>
+          <button onClick={handleLogout} className={`${styles.button} ${styles.buttonOutline}`}>
+            Sign Out
+          </button>
         </div>
       </div>
-    </div>
+    </nav>
   );
 }
 
-export default ApplyLeavePage;
+export default function ApplyLeavePage({ user, setUser, isAdmin }) {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    leaveType: '',
+    fromDate: '',
+    toDate: '',
+    reason: ''
+  });
+  const [loading, setLoading] = useState(false);
+  
+  const handleChange = (e) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
+  };
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Client-side validation
+    if (!formData.leaveType) {
+      alert('Please select a leave type');
+      return;
+    }
+    
+    if (new Date(formData.toDate) < new Date(formData.fromDate)) {
+      alert('End date cannot be before start date');
+      return;
+    }
+    
+    setLoading(true);
+    
+    try {
+      const response = await fetch(`${API_URL}/leaves`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify(formData)
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to submit leave application');
+      }
+      
+      alert('Leave application submitted successfully!');
+      navigate('/my-leaves');
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  return (
+    <div className={styles.page}>
+      <Navbar user={user} setUser={setUser} isAdmin={isAdmin} />
+      
+      <main className={styles.pageContent}>
+        <div className={styles.pageHeader}>
+          <div>
+            <h1 className={styles.pageTitle}>Apply for Leave.</h1>
+            <p className={styles.pageSubtitle}>Submit a new leave request</p>
+          </div>
+          
+          <Link to="/dashboard" className={`${styles.button} ${styles.buttonOutline}`}>
+            ← Back to Dashboard
+          </Link>
+        </div>
+        
+        <div style={{ maxWidth: '600px' }}>
+          <form onSubmit={handleSubmit}>
+            <div className={styles.formGroup}>
+              <label htmlFor="leaveType" className={styles.label}>Leave Type</label>
+              <select
+                id="leaveType"
+                name="leaveType"
+                value={formData.leaveType}
+                onChange={handleChange}
+                required
+                className={styles.select}
+              >
+                <option value="">Select leave type...</option>
+                {LEAVE_TYPES.map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className={styles.formGroup}>
+              <label htmlFor="fromDate" className={styles.label}>Start Date</label>
+              <input
+                type="date"
+                id="fromDate"
+                name="fromDate"
+                value={formData.fromDate}
+                onChange={handleChange}
+                required
+                className={styles.input}
+              />
+            </div>
+            
+            <div className={styles.formGroup}>
+              <label htmlFor="toDate" className={styles.label}>End Date</label>
+              <input
+                type="date"
+                id="toDate"
+                name="toDate"
+                value={formData.toDate}
+                onChange={handleChange}
+                required
+                className={styles.input}
+              />
+            </div>
+            
+            <div className={styles.formGroup}>
+              <label htmlFor="reason" className={styles.label}>Reason for Leave</label>
+              <textarea
+                id="reason"
+                name="reason"
+                value={formData.reason}
+                onChange={handleChange}
+                required
+                className={styles.textarea}
+                placeholder="Please provide a brief reason for your leave request..."
+              />
+            </div>
+            
+            <div style={{ display: 'flex', gap: '16px', marginTop: '32px' }}>
+              <button 
+                type="submit" 
+                disabled={loading}
+                className={`${styles.button} ${styles.buttonPrimary}`}
+              >
+                {loading ? 'Submitting...' : 'Submit Application'}
+              </button>
+              
+              <Link to="/dashboard" className={`${styles.button} ${styles.buttonOutline}`}>
+                Cancel
+              </Link>
+            </div>
+          </form>
+        </div>
+      </main>
+    </div>
+  );
+}

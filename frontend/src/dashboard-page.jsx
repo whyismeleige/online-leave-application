@@ -1,141 +1,195 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+// dashboard-page.jsx
+// Employee dashboard showing leave overview and recent history
 
-function DashboardPage({ user, setUser }) {
-  const [leaves, setLeaves] = useState([]);
-  const [loading, setLoading] = useState(true);
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import styles from './styles.module.css';
+
+const API_URL = 'http://localhost:5000/api';
+
+function Navbar({ user, setUser, isAdmin }) {
   const navigate = useNavigate();
-
-  useEffect(() => {
-    fetchLeaves();
-  }, []);
-
-  async function fetchLeaves() {
+  
+  const handleLogout = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/leaves/my", {
-        method: "GET",
-        credentials: "include",
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setLeaves(data.leaves || []);
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleLogout() {
-    try {
-      await fetch("http://localhost:8080/api/auth/logout", {
-        method: "POST",
-        credentials: "include",
+      await fetch(`${API_URL}/auth/logout`, {
+        method: 'POST',
+        credentials: 'include'
       });
       setUser(null);
-      navigate("/");
+      alert('Logged out successfully');
+      navigate('/');
     } catch (error) {
-      console.error(error);
+      alert('Logout failed');
     }
-  }
-
-  const pendingCount = leaves.filter(l => l.status === "Pending").length;
-  const approvedCount = leaves.filter(l => l.status === "Approved").length;
-  const totalDays = leaves
-    .filter(l => l.status === "Approved")
-    .reduce((sum, l) => sum + l.numberOfDays, 0);
-
-  const recentLeaves = leaves.slice(0, 5);
-
+  };
+  
   return (
-    <div>
-      <nav className="navbar">
-        <div className="navContent">
-          <Link to="/dashboard" className="logo">OFF_SITE</Link>
-          <div className="navLinks">
-            <Link to="/dashboard" className="navLink">Dashboard</Link>
-            <Link to="/apply-leave" className="navLink">Apply Leave</Link>
-            <Link to="/my-leaves" className="navLink">My Leaves</Link>
-            {user.role === "admin" && <Link to="/admin" className="navLink">Admin</Link>}
-            <button onClick={handleLogout} className="button buttonSmall">Logout</button>
-          </div>
+    <nav className={styles.navbar}>
+      <div className={styles.navbarContainer}>
+        <Link to="/" className={styles.brand}>
+          <div className={styles.brandIcon}>O_</div>
+          <span className={styles.brandText}>OFF SITE</span>
+        </Link>
+        
+        <div className={styles.navLinks}>
+          <Link to="/" className={styles.navLink}>Home</Link>
+          <Link to="/dashboard" className={styles.navLink}>Dashboard</Link>
+          <Link to="/my-leaves" className={styles.navLink}>My Leaves</Link>
+          {isAdmin && (
+            <Link to="/admin" className={`${styles.navLink} ${styles.navLinkAdmin}`}>
+              Admin Panel
+            </Link>
+          )}
         </div>
-      </nav>
-
-      <div className="page">
-        <div className="container">
-          <div className="pageHeader">
-            <p className="pageSubtitle">/// DASHBOARD</p>
-            <h1 className="pageTitle">Welcome, {user.name}.</h1>
-          </div>
-
-          <div className="statsGrid">
-            <div className="statCard">
-              <div className="statValue">{leaves.length}</div>
-              <div className="statLabel">Total Applications</div>
-            </div>
-            <div className="statCard">
-              <div className="statValue">{approvedCount}</div>
-              <div className="statLabel">Approved</div>
-            </div>
-            <div className="statCard">
-              <div className="statValue" style={{ color: "#ea580c" }}>{pendingCount}</div>
-              <div className="statLabel">Pending</div>
-            </div>
-            <div className="statCard">
-              <div className="statValue">{totalDays}</div>
-              <div className="statLabel">Days Used</div>
-            </div>
-          </div>
-
-          <div className="card">
-            <div className="flexBetween mb2">
-              <h2 style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.1em", color: "#a8a29e" }}>
-                Recent Applications
-              </h2>
-              <Link to="/apply-leave" className="button buttonSmall">Submit Request</Link>
-            </div>
-
-            {loading ? (
-              <div className="loading">Loading...</div>
-            ) : recentLeaves.length === 0 ? (
-              <div className="emptyState">
-                <p className="emptyTitle">No leave applications yet.</p>
-                <Link to="/apply-leave" className="button">Apply for Leave</Link>
-              </div>
-            ) : (
-              <div>
-                {recentLeaves.map(leave => (
-                  <div key={leave._id} className="leaveItem">
-                    <div className="leaveInfo">
-                      <div className="leaveType">{leave.leaveType} Leave</div>
-                      <div className="leaveDates">
-                        {new Date(leave.fromDate).toLocaleDateString()} — {new Date(leave.toDate).toLocaleDateString()}
-                      </div>
-                      <div className="leaveDetails">
-                        {leave.numberOfDays} day(s) • Applied {new Date(leave.createdAt).toLocaleDateString()}
-                      </div>
-                    </div>
-                    <div className="leaveActions">
-                      <span className={`badge ${
-                        leave.status === "Pending" ? "badgePending" :
-                        leave.status === "Approved" ? "badgeApproved" :
-                        "badgeRejected"
-                      }`}>
-                        {leave.status}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+        
+        <div className={styles.navActions}>
+          <span className={styles.userName}>{user?.name}</span>
+          <button onClick={handleLogout} className={`${styles.button} ${styles.buttonOutline}`}>
+            Sign Out
+          </button>
         </div>
       </div>
-    </div>
+    </nav>
   );
 }
 
-export default DashboardPage;
+export default function DashboardPage({ user, setUser, isAdmin }) {
+  const [leaves, setLeaves] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    fetch(`${API_URL}/leaves/my`, {
+      method: 'GET',
+      credentials: 'include'
+    })
+      .then(res => res.json())
+      .then(data => {
+        setLeaves(data.leaves || []);
+      })
+      .catch(error => {
+        console.error('Failed to fetch leaves:', error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+  
+  const approvedCount = leaves.filter(l => l.status === 'Approved').length;
+  const pendingCount = leaves.filter(l => l.status === 'Pending').length;
+  const totalDaysUsed = leaves
+    .filter(l => l.status === 'Approved')
+    .reduce((sum, l) => sum + (l.numberOfDays || 0), 0);
+  
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+  
+  const getStatusBadgeClass = (status) => {
+    if (status === 'Approved') return styles.badgeApproved;
+    if (status === 'Pending') return styles.badgePending;
+    if (status === 'Rejected') return styles.badgeRejected;
+    return styles.badge;
+  };
+  
+  // Show last 5 leaves
+  const recentLeaves = leaves.slice(0, 5);
+  
+  return (
+    <div className={styles.page}>
+      <Navbar user={user} setUser={setUser} isAdmin={isAdmin} />
+      
+      <main className={styles.pageContent}>
+        <div className={styles.pageHeader}>
+          <div>
+            <h1 className={styles.pageTitle}>The Ledger.</h1>
+            <p className={styles.pageSubtitle}>
+              {user?.name} • {user?.department}
+            </p>
+          </div>
+          
+          {/* Summary Stats */}
+          <div style={{ display: 'flex', gap: '32px' }}>
+            <div className={styles.statsCard}>
+              <span className={styles.statsValue}>{totalDaysUsed}</span>
+              <span className={styles.statsLabel}>Days Used</span>
+            </div>
+            <div className={styles.statsCard}>
+              <span className={styles.statsValue}>{pendingCount}</span>
+              <span className={styles.statsLabel}>Pending</span>
+            </div>
+          </div>
+        </div>
+        
+        {/* Apply Leave Button */}
+        <Link to="/apply-leave" className={`${styles.button} ${styles.buttonPrimary}`} style={{ marginBottom: '48px', display: 'inline-flex' }}>
+          Apply for Leave
+        </Link>
+        
+        {/* Recent Leave History */}
+        <section>
+          <h2 style={{ 
+            fontFamily: 'var(--font-serif)', 
+            fontSize: '32px', 
+            fontStyle: 'italic',
+            marginBottom: '24px' 
+          }}>
+            Recent Applications
+          </h2>
+          
+          {loading ? (
+            <div className={styles.loading}>
+              <div className={styles.spinner} />
+            </div>
+          ) : recentLeaves.length === 0 ? (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyStateIcon}>📋</div>
+              <p className={styles.emptyStateText}>No leave applications yet.</p>
+              <Link to="/apply-leave" className={`${styles.button} ${styles.buttonPrimary}`}>
+                Apply for Your First Leave
+              </Link>
+            </div>
+          ) : (
+            <>
+              {recentLeaves.map(leave => (
+                <div key={leave._id} className={styles.card}>
+                  <div className={styles.cardHeader}>
+                    <div>
+                      <h3 className={styles.cardTitle}>{leave.leaveType} Leave</h3>
+                      <p className={styles.cardMeta}>
+                        {formatDate(leave.fromDate)} → {formatDate(leave.toDate)} • {leave.numberOfDays} days
+                      </p>
+                    </div>
+                    <span className={`${styles.badge} ${getStatusBadgeClass(leave.status)}`}>
+                      {leave.status}
+                    </span>
+                  </div>
+                  <div className={styles.cardContent}>
+                    <p><strong>Reason:</strong> {leave.reason}</p>
+                    {leave.adminNote && (
+                      <p style={{ marginTop: '8px' }}>
+                        <strong>Admin Note:</strong> {leave.adminNote}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+              
+              <Link 
+                to="/my-leaves" 
+                className={`${styles.button} ${styles.buttonSecondary}`}
+                style={{ marginTop: '24px', display: 'inline-flex' }}
+              >
+                View All Leaves
+              </Link>
+            </>
+          )}
+        </section>
+      </main>
+    </div>
+  );
+}

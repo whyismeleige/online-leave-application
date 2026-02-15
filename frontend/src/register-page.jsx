@@ -1,106 +1,160 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+// register-page.jsx
+// User registration page
 
-function RegisterPage({ setUser }) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [department, setDepartment] = useState("");
-  const [loading, setLoading] = useState(false);
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import styles from './styles.module.css';
+
+const API_URL = 'http://localhost:5000/api';
+
+export default function RegisterPage({ setUser }) {
   const navigate = useNavigate();
-
-  async function handleSubmit(e) {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    department: ''
+  });
+  const [loading, setLoading] = useState(false);
+  
+  const handleChange = (e) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
+  };
+  
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+    
     try {
-      const response = await fetch("http://localhost:8080/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ name, email, password, department }),
+      const response = await fetch(`${API_URL}/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify(formData)
       });
-
+      
       const data = await response.json();
-
-      if (response.ok) {
-        setUser(data.user);
-        alert("Account created successfully");
-        navigate("/dashboard");
-      } else {
-        alert(data.error || "Registration failed");
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed');
       }
+      
+      setUser(data.user);
+      alert('Account created successfully!');
+      navigate('/dashboard');
     } catch (error) {
-      alert("Something went wrong");
+      alert(error.message);
     } finally {
       setLoading(false);
     }
-  }
-
+  };
+  
   return (
-    <div className="authContainer">
-      <div className="authBox">
-        <div className="mb3">
-          <p className="authSubtitle">/// CREATE ACCOUNT</p>
-          <h1 className="authTitle">Register.</h1>
+    <div className={styles.authPage}>
+      {/* Brand Panel */}
+      <div className={styles.authBrandPanel}>
+        <div className={styles.authBrandIcon}>O_</div>
+        
+        <div>
+          <h1 className={styles.authBrandTitle}>
+            Prioritize your <br /> presence.
+          </h1>
+          <p className={styles.authBrandDescription}>
+            Access the OFF_SITE portal to manage leave requests and view team availability.
+          </p>
         </div>
-
-        <form onSubmit={handleSubmit}>
-          <div className="formGroup">
-            <label className="label">Name</label>
-            <input
-              type="text"
-              className="input"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
+        
+        <div className={styles.authBrandFooter}>
+          © 2026 OFF_SITE SYSTEMS
+        </div>
+      </div>
+      
+      {/* Form Panel */}
+      <div className={styles.authFormPanel}>
+        <div className={styles.authFormContainer}>
+          <div className={styles.authFormHeader}>
+            <span className={styles.authFormLabel}>Create Account</span>
+            <h2 className={styles.authFormTitle}>Join our team.</h2>
           </div>
-
-          <div className="formGroup">
-            <label className="label">Email</label>
-            <input
-              type="email"
-              className="input"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+          
+          <form onSubmit={handleSubmit}>
+            <div className={styles.formGroup}>
+              <label htmlFor="name" className={styles.label}>Full Name</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                className={styles.input}
+                placeholder="John Doe"
+              />
+            </div>
+            
+            <div className={styles.formGroup}>
+              <label htmlFor="email" className={styles.label}>Email Address</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className={styles.input}
+                placeholder="you@company.com"
+              />
+            </div>
+            
+            <div className={styles.formGroup}>
+              <label htmlFor="password" className={styles.label}>Password</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                className={styles.input}
+                placeholder="Create a strong password"
+                minLength="6"
+              />
+            </div>
+            
+            <div className={styles.formGroup}>
+              <label htmlFor="department" className={styles.label}>Department</label>
+              <input
+                type="text"
+                id="department"
+                name="department"
+                value={formData.department}
+                onChange={handleChange}
+                required
+                className={styles.input}
+                placeholder="Engineering, Sales, HR, etc."
+              />
+            </div>
+            
+            <button 
+              type="submit" 
+              disabled={loading}
+              className={`${styles.button} ${styles.buttonPrimary}`}
+              style={{ width: '100%' }}
+            >
+              {loading ? 'Creating Account...' : 'Create Account'}
+            </button>
+          </form>
+          
+          <div className={styles.authFormFooter}>
+            Already have an account? <Link to="/login">Sign in here</Link>
           </div>
-
-          <div className="formGroup">
-            <label className="label">Password</label>
-            <input
-              type="password"
-              className="input"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="formGroup">
-            <label className="label">Department</label>
-            <input
-              type="text"
-              className="input"
-              value={department}
-              onChange={(e) => setDepartment(e.target.value)}
-              placeholder="Optional"
-            />
-          </div>
-
-          <button type="submit" className="button" disabled={loading} style={{ width: "100%" }}>
-            {loading ? "Creating account..." : "Create Account"}
-          </button>
-        </form>
-
-        <p className="textCenter mt2">
-          Already have an account? <Link to="/login" className="authLink">Sign In</Link>
-        </p>
+        </div>
       </div>
     </div>
   );
 }
-
-export default RegisterPage;

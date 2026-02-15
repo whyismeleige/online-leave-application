@@ -1,82 +1,129 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+// login-page.jsx
+// User login page
 
-function LoginPage({ setUser }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import styles from './styles.module.css';
+
+const API_URL = 'http://localhost:5000/api';
+
+export default function LoginPage({ setUser }) {
   const navigate = useNavigate();
-
-  async function handleSubmit(e) {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const [loading, setLoading] = useState(false);
+  
+  const handleChange = (e) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
+  };
+  
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+    
     try {
-      const response = await fetch("http://localhost:8080/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email, password }),
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify(formData)
       });
-
+      
       const data = await response.json();
-
-      if (response.ok) {
-        setUser(data.user);
-        alert("Logged in successfully");
-        navigate("/dashboard");
-      } else {
-        alert(data.error || "Login failed");
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
       }
+      
+      setUser(data.user);
+      alert(`Welcome back, ${data.user.name}!`);
+      navigate('/dashboard');
     } catch (error) {
-      alert("Something went wrong");
+      alert(error.message);
     } finally {
       setLoading(false);
     }
-  }
-
+  };
+  
   return (
-    <div className="authContainer">
-      <div className="authBox">
-        <div className="mb3">
-          <p className="authSubtitle">/// ACCESS PORTAL</p>
-          <h1 className="authTitle">Sign In.</h1>
+    <div className={styles.authPage}>
+      {/* Brand Panel */}
+      <div className={styles.authBrandPanel}>
+        <div className={styles.authBrandIcon}>O_</div>
+        
+        <div>
+          <h1 className={styles.authBrandTitle}>
+            Prioritize your <br /> presence.
+          </h1>
+          <p className={styles.authBrandDescription}>
+            Access the OFF_SITE portal to manage leave requests and view team availability.
+          </p>
         </div>
-
-        <form onSubmit={handleSubmit}>
-          <div className="formGroup">
-            <label className="label">Email</label>
-            <input
-              type="email"
-              className="input"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+        
+        <div className={styles.authBrandFooter}>
+          © 2026 OFF_SITE SYSTEMS
+        </div>
+      </div>
+      
+      {/* Form Panel */}
+      <div className={styles.authFormPanel}>
+        <div className={styles.authFormContainer}>
+          <div className={styles.authFormHeader}>
+            <span className={styles.authFormLabel}>Sign In</span>
+            <h2 className={styles.authFormTitle}>Welcome back.</h2>
           </div>
-
-          <div className="formGroup">
-            <label className="label">Password</label>
-            <input
-              type="password"
-              className="input"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+          
+          <form onSubmit={handleSubmit}>
+            <div className={styles.formGroup}>
+              <label htmlFor="email" className={styles.label}>Email Address</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className={styles.input}
+                placeholder="you@company.com"
+              />
+            </div>
+            
+            <div className={styles.formGroup}>
+              <label htmlFor="password" className={styles.label}>Password</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                className={styles.input}
+                placeholder="Enter your password"
+              />
+            </div>
+            
+            <button 
+              type="submit" 
+              disabled={loading}
+              className={`${styles.button} ${styles.buttonPrimary}`}
+              style={{ width: '100%' }}
+            >
+              {loading ? 'Signing In...' : 'Sign In'}
+            </button>
+          </form>
+          
+          <div className={styles.authFormFooter}>
+            Don't have an account? <Link to="/register">Create one here</Link>
           </div>
-
-          <button type="submit" className="button" disabled={loading} style={{ width: "100%" }}>
-            {loading ? "Signing in..." : "Sign In"}
-          </button>
-        </form>
-
-        <p className="textCenter mt2">
-          Don't have an account? <Link to="/register" className="authLink">Register</Link>
-        </p>
+        </div>
       </div>
     </div>
   );
 }
-
-export default LoginPage;
